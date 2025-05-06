@@ -1,0 +1,98 @@
+{
+  "version": "1",
+  "mdmTypes": ["Organization", "Patient", "Practitioner"],
+  "candidateSearchParams": [
+     {
+        "resourceType": "Patient",
+        "searchParams": ["phone"]
+     },
+     {
+        "resourceType": "Patient",
+        "searchParams": ["birthdate"]
+     },
+     {
+        "resourceType": "*",
+        "searchParams": ["identifier"]
+     }
+  ],
+  "candidateFilterSearchParams": [
+     {
+        "resourceType": "Patient",
+        "searchParam": "active",
+        "fixedValue": "true"
+     }
+  ],
+  "matchFields": [
+     {
+        "name": "birthday",
+        "resourceType": "Patient",
+        "resourcePath": "birthDate",
+        "matcher": {
+           "algorithm": "STRING"
+        }
+     },
+     {
+        "name": "phone",
+        "resourceType": "Patient",
+        "resourcePath": "telecom.value",
+        "matcher": {
+           "algorithm": "STRING"
+        }
+     },
+     {
+        "name": "firstname-meta",
+        "resourceType": "Patient",
+        "fhirPath": "name.given.first()",
+        "matcher": {
+           "algorithm": "METAPHONE"
+        }
+     },
+     {
+        "name": "lastname-meta",
+        "resourceType": "Patient",
+        "resourcePath": "name.family",
+        "matcher": {
+           "algorithm": "METAPHONE"
+        }
+     },
+     {
+        "name": "firstname-jaro",
+        "resourceType": "Patient",
+        "resourcePath": "name.given",
+        "similarity": {
+           "algorithm": "JARO_WINKLER",
+           "matchThreshold": 0.8
+        }
+     },
+     {
+        "name": "lastname-jaro",
+        "resourceType": "Patient",
+        "resourcePath": "name.family",
+        "similarity": {
+           "algorithm": "JARO_WINKLER",
+           "matchThreshold": 0.8
+        }
+     },
+     {
+        "name": "org-name",
+        "resourceType": "Organization",
+        "resourcePath": "name",
+        "matcher": {
+           "algorithm": "STRING"
+        }
+     }
+  ],
+  "matchResultMap": {
+     "firstname-meta,lastname-meta,birthday": "MATCH",
+     "firstname-meta,lastname-meta,phone": "MATCH",
+     "firstname-jaro,lastname-jaro,birthday": "POSSIBLE_MATCH",
+     "firstname-jaro,lastname-jaro,phone": "POSSIBLE_MATCH",
+     "lastname-jaro,phone,birthday": "POSSIBLE_MATCH",
+     "firstname-jaro,phone,birthday": "POSSIBLE_MATCH",
+     "org-name": "MATCH"
+  },
+  "eidSystems": {
+     "Organization": "https://hapifhir.org/identifier/naming/business-number",
+     "Practitioner": "https://hapifhir.org/identifier/naming/license-number"
+  }
+}

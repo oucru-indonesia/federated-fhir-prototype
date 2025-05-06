@@ -1,0 +1,266 @@
+version: "3.9"
+services:
+  # Ministry of Health District A
+  database-ministry-of-health:
+    image: postgres
+    container_name: database-ministry-of-health
+    restart: always
+    ports:
+      - "5431:5432"
+    environment:
+      POSTGRES_DB: "hapi_fhir_ministry_of_health"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+    volumes:
+      - database-ministry-of-health:/var/lib/postgresql/data
+    networks:
+      - default
+  fhir-server-ministry-of-health:
+    image: "hapiproject/hapi:v6.8.3"
+    # image: "hapiproject/hapi:v6.1.0"
+    container_name: fhir-server-ministry-of-health
+    environment:
+      - hapi.fhir.mdm_enabled=false
+      - hapi.fhir.inline_resource_storage_below_size=2147483647
+      - hapi.fhir.client_id_strategy=ANY
+      - spring.datasource.url=jdbc:postgresql://database-ministry-of-health:5432/hapi_fhir_ministry_of_health
+      - spring.datasource.username=admin
+      - spring.datasource.password=admin
+      - spring.datasource.driverClassName=org.postgresql.Driver
+      - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect
+      - hapi.fhir.bulk_export_enabled=true
+      - hapi.fhir.tester.home.server_address=http://localhost:8091/fhir
+      - server.port=8091
+    ports:
+      - 8091:8091
+    restart: unless-stopped
+    networks:
+      - default
+    depends_on:
+      - database-ministry-of-health
+    # healthcheck:
+    #   test: "curl -sSk http://fhir-server-ministry-of-health:8091/fhir/metadata || exit 1" # Cannot use `curl` as the command is not available in Debian "distroless"
+    #   interval: 30s
+    #   timeout: 30s
+    #   retries: 3
+
+  # BKKBN District A
+  database-bkkbn:
+    image: postgres
+    container_name: database-bkkbn
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: "hapi_fhir_bkkbn"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+    volumes:
+      - database-bkkbn:/var/lib/postgresql/data
+    networks:
+      - default
+  fhir-server-bkkbn:
+    image: "hapiproject/hapi:v6.8.3"
+    # image: "hapiproject/hapi:v6.1.0"
+    container_name: fhir-server-bkkbn
+    environment:
+      - hapi.fhir.mdm_enabled=false
+      - hapi.fhir.inline_resource_storage_below_size=2147483647
+      - hapi.fhir.client_id_strategy=ANY
+      - spring.datasource.url=jdbc:postgresql://database-bkkbn:5432/hapi_fhir_bkkbn
+      - spring.datasource.username=admin
+      - spring.datasource.password=admin
+      - spring.datasource.driverClassName=org.postgresql.Driver
+      - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect
+      - hapi.fhir.bulk_export_enabled=true
+      - hapi.fhir.tester.home.server_address=http://localhost:8092/fhir
+      - server.port=8092
+    ports:
+      - 8092:8092
+    restart: unless-stopped
+    networks:
+      - default
+    depends_on:
+      - database-bkkbn
+
+  # Ministry of Village Development District A
+  database-ministry-of-village-development:
+    image: postgres
+    container_name: database-ministry-of-village-development
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: "hapi_fhir_ministry_of_village_development"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+    volumes:
+      - database-ministry-of-village-development:/var/lib/postgresql/data
+    networks:
+      - default
+  fhir-server-ministry-of-village-development:
+    image: "hapiproject/hapi:v6.8.3"
+    # image: "hapiproject/hapi:v6.1.0"
+    container_name: fhir-server-ministry-of-village-development
+    environment:
+      - hapi.fhir.mdm_enabled=false
+      - hapi.fhir.inline_resource_storage_below_size=2147483647
+      - hapi.fhir.client_id_strategy=ANY
+      - spring.datasource.url=jdbc:postgresql://database-ministry-of-village-development:5432/hapi_fhir_ministry_of_village_development
+      - spring.datasource.username=admin
+      - spring.datasource.password=admin
+      - spring.datasource.driverClassName=org.postgresql.Driver
+      - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect
+      - hapi.fhir.bulk_export_enabled=true
+      - hapi.fhir.tester.home.server_address=http://localhost:8093/fhir
+      - server.port=8093
+    ports:
+      - 8093:8093
+    restart: unless-stopped
+    networks:
+      - default
+    depends_on:
+      - database-ministry-of-village-development
+
+  # Interoperability Layer "District A" ## reference https://github.com/jembi/openhim-core-js/blob/master/infrastructure/docker-compose.yml
+  database-interoperability-layer:
+    image: mongo
+    container_name: database-interoperability-layer
+    restart: unless-stopped
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: root
+    #   MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - default
+    volumes:
+      - database-interoperability-layer:/data/db
+  openhim-core-interoperability-layer:
+    image: jembi/openhim-core:v8.3.0
+    container_name: openhim-core-interoperability-layer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "5000:5000"
+      - "5001:5001"
+    environment:
+      mongo_url: mongodb://database-interoperability-layer/openhim
+      mongo_atnaUrl: mongodb://database-interoperability-layer/openhim
+      NODE_ENV: development
+      # alerts_consoleURL: https://interoperability-layer.district-a.test/admin/
+      # api_openid_callbackUrl: https://interoperability-layer.district-a.test/admin/
+      # api_protocol: https
+      authentication_enableCustomTokenAuthentication: true
+      # router_externalHostname: interoperability-layer.district-a.test
+    networks:
+      - default
+    healthcheck:
+      test: "curl -sSk https://openhim-core-interoperability-layer:8080/heartbeat || exit 1"
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    depends_on:
+      - database-interoperability-layer
+  openhim-console-interoperability-layer:
+    image: jembi/openhim-console:v1.18.2
+    container_name: openhim-console-interoperability-layer
+    restart: unless-stopped
+    ports:
+      - "9000:80"
+    # environment:
+    #   KC_FRONTEND_URL: http://localhost:9088
+    #   OPENHIM_CONSOLE_PROTOCOL: https
+    #   OPENHIM_CORE_MEDIATOR_HOSTNAME: interoperability-layer.district-a.test
+    networks:
+      - default
+    healthcheck:
+      test: "curl -sS http://openhim-console-interoperability-layer || exit 1"
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    depends_on:
+      - openhim-core-interoperability-layer
+
+  # FHIR Server "District A"
+  database-central:
+    image: postgres
+    container_name: database-central
+    restart: always
+    ports:
+      - "5438:5432"
+    environment:
+      POSTGRES_DB: "hapi_fhir_central"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+    volumes:
+      - database-central:/var/lib/postgresql/data
+    networks:
+      - default
+  fhir-server-central:
+    image: "hapiproject/hapi:v6.6.0"
+    # image: "hapiproject/hapi:v6.10.1"
+    container_name: fhir-server-central
+    environment:
+      - hapi.fhir.mdm_enabled=true
+      - hapi.fhir.inline_resource_storage_below_size=2147483647
+      - hapi.fhir.advanced_lucene_indexing=false
+      - hapi.fhir.client_id_strategy=ANY
+      - spring.datasource.url=jdbc:postgresql://database-central:5432/hapi_fhir_central
+      - spring.datasource.username=admin
+      - spring.datasource.password=admin
+      - spring.datasource.driverClassName=org.postgresql.Driver
+      - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect
+      - hapi.fhir.tester.home.server_address=http://localhost:8098/fhir
+      - server.port=8098
+    ports:
+      - 8098:8098
+    restart: unless-stopped
+    networks:
+      - default
+    volumes:
+      - ./mdm-rules.json:/app/mdm-rules.json # Not picked up due to hard-coded ResourceLoader URL
+    depends_on:
+      - database-central
+    # healthcheck:
+    #   test: "curl -sSk http://fhir-server-central:8098/fhir/metadata || exit 1" # Cannot use `curl` as the command is not available in Debian "distroless"
+    #   interval: 10s
+    #   retries: 20
+    #   start_period: 5s
+    #   timeout: 60s
+
+  # Smart Synchronizer
+  pipeline-controller:
+    build:
+      context: 'D:\SourceCodes\google\fhir-data-pipes'
+    container_name: fhir-data-pipes_pipeline-controller
+    volumes:
+      - ${PIPELINE_CONFIG}:/app/config:ro
+      - ${DWH_ROOT}:/app/dwh
+    environment:
+      # The client ID and Secret are retrieved from Levi's dummy account in SATUSEHAT
+      # client_id: mpYxDqgTQjyxn6WkWdApOllrhuTIVOlxkWBXlCKxZKfV4d10
+      # client_secret: P8DNR2kFLaDexEqtxgu4YhG18Guse7oOZtCnT8AOoEvosm9oMUN5UtanHJOdUatM
+      SPRING_APPLICATION_JSON: |
+        {
+          "fhirdata": {
+            "fhirServerOAuthClientSecret": "P8DNR2kFLaDexEqtxgu4YhG18Guse7oOZtCnT8AOoEvosm9oMUN5UtanHJOdUatM"
+          }
+        }
+    ports:
+      - "8090:8080"
+    networks:
+      # - cloudbuild
+      - default
+    depends_on:
+      fhir-server-central:
+        # condition: service_healthy # Cannot use `curl` as the command is not available in Debian "distroless" of HAPI FHIR docker image
+        condition: service_started
+      fhir-server-ministry-of-health:
+        # condition: service_healthy # Cannot use `curl` as the command is not available in Debian "distroless" of HAPI FHIR docker image
+        condition: service_started
+
+volumes:
+  database-ministry-of-health:
+  database-bkkbn:
+  database-ministry-of-village-development:
+  database-interoperability-layer:
+  database-central:

@@ -1,0 +1,34 @@
+// Patient resource from posyandu-melati
+...
+{
+  "fullUrl": "http://interoperability-layer.sid-indonesia.org:8080/fhir/Patient/1",
+  "resource": {
+    "resourceType": "Patient",
+    "id": "1",
+    "meta": {
+      "versionId": "1",
+      "lastUpdated": "2023-09-11T03:57:56.189+00:00",
+      "source": "#qjy10jJr7GKiBNGh"
+    },
+    "identifier": [
+      {
+        "use": "usual",
+        "system": "https://fhir.kemkes.go.id/id/nik",
+        "value": "1234567"
+      }
+    ],
+    "name": [
+      {
+        "text": "Levi Ackerman",
+        "family": "Ackerman",
+        "given": [
+          "Levi"
+        ]
+      }
+    ]
+  },
+  "search": {
+    "mode": "match"
+  }
+}
+...

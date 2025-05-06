@@ -1,0 +1,27 @@
+{
+  "resourceType": "{{resourceType}}",
+  "id": "{{forcedID}}",
+  "meta": {
+    "source": "{{baseUrl}}/{{resourceType}}/{{forcedID}}"
+  },
+  "birthDate": "1999-09-09",
+  "active": true,
+  "name": [
+    {
+      "given": [
+        "Levi"
+      ],
+      "prefix": [
+        "Captain"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "email",
+      "value": "levi.ackerman@example.com",
+      "use": "work"
+    }
+  ],
+  "gender": "male"
+}

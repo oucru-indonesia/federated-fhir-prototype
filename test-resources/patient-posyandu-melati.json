@@ -1,0 +1,19 @@
+{
+  "resourceType": "Patient",
+  "identifier": [
+    {
+      "system": "https://fhir.kemkes.go.id/id/nik",
+      "value": "1234567",
+      "use": "usual"
+    }
+  ],
+  "name": [
+    {
+      "text": "Levi Ackerman",
+      "family": "Ackerman",
+      "given": [
+        "Levi"
+      ]
+    }
+  ]
+}
